@@ -1,13 +1,13 @@
 use crate::exts::{IdentExt, TokenStreamExt};
 use attribute_derive::Attribute;
 use proc_macro2::TokenStream;
-use quote::{ToTokens, quote_spanned};
+use quote::{ToTokens, quote, quote_spanned};
 use syn::parse_quote;
 
 #[derive(Debug)]
 pub enum Model {
-    Struct(Struct),
-    Impl(Impl),
+    Struct(Box<Struct>),
+    Impl(Box<Impl>),
 }
 
 impl syn::parse::Parse for Model {
@@ -17,11 +17,11 @@ impl syn::parse::Parse for Model {
         let this = if let Ok(mut item_struct) = syn::ItemStruct::parse(input) {
             item_struct.attrs = attrs;
 
-            Self::Struct(Struct::try_from(item_struct)?)
+            Self::Struct(Box::new(Struct::try_from(item_struct)?))
         } else if let Ok(mut item_impl) = syn::ItemImpl::parse(input) {
             item_impl.attrs = attrs;
 
-            Self::Impl(Impl::try_from(item_impl)?)
+            Self::Impl(Box::new(Impl::try_from(item_impl)?))
         } else {
             abort!(
                 input.span(),

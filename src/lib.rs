@@ -25,6 +25,7 @@ pub fn wasm_bindgen_struct(
 mod macro_tests {
     use super::*;
     use crate::exts::TokenStreamExt;
+    use quote::quote;
 
     #[track_caller]
     fn parse_model(input: proc_macro2::TokenStream) -> proc_macro2::TokenStream {

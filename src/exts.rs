@@ -29,6 +29,20 @@ impl IdentExt for syn::Ident {
     }
 }
 
+pub trait TokenStreamExt {
+    fn to_pretty(&self) -> String;
+}
+
+impl TokenStreamExt for proc_macro2::TokenStream {
+    #[track_caller]
+    fn to_pretty(&self) -> String {
+        let file = syn::parse2::<syn::File>(self.clone())
+            .expect("failed to parse `TokenStream` as `syn::File`");
+
+        prettyplease::unparse(&file)
+    }
+}
+
 #[cfg(test)]
 mod ident_to_camel_from_snake {
     use super::*;
@@ -59,19 +73,5 @@ mod ident_to_camel_from_snake {
         let ident: syn::Ident = syn::parse_quote!(a_2little_test);
 
         assert_eq!(ident.to_camel_from_snake().to_string(), "a2littleTest");
-    }
-}
-
-pub trait TokenStreamExt {
-    fn to_pretty(&self) -> String;
-}
-
-impl TokenStreamExt for proc_macro2::TokenStream {
-    #[track_caller]
-    fn to_pretty(&self) -> String {
-        let file = syn::parse2::<syn::File>(self.clone())
-            .expect("failed to parse `TokenStream` as `syn::File`");
-
-        prettyplease::unparse(&file)
     }
 }
